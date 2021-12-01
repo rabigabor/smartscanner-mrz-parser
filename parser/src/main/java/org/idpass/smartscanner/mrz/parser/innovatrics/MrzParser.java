@@ -19,6 +19,8 @@
 package org.idpass.smartscanner.mrz.parser.innovatrics;
 
 
+import android.util.Log;
+
 import org.idpass.smartscanner.mrz.parser.innovatrics.records.MrtdTd1;
 import org.idpass.smartscanner.mrz.parser.innovatrics.types.MrzDate;
 import org.idpass.smartscanner.mrz.parser.innovatrics.types.MrzFormat;
@@ -27,7 +29,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,11 +47,11 @@ public class MrzParser {
     /**
      * The MRZ record, not null.
      */
-    public final String mrz;
+    public String mrz;
     /**
      * The MRZ record separated into rows.
      */
-    public final String[] rows;
+    public String[] rows;
     /**
      * MRZ record format.
      */
@@ -272,6 +278,55 @@ public class MrzParser {
         char checkDigit = rows[row].charAt(col);
         if (checkDigit == FILLER) {
             checkDigit = '0';
+        }
+        Log.d("PARSER","checkDigit |"+digit+"|"+checkDigit+"|"+fieldName+"|"+str);
+        if((fieldName.equals("document number") || fieldName.equals("passport number")) && digit != checkDigit){
+
+
+          String guess0 = "0", guessO = "O";
+          List<Integer> occurences = new ArrayList<>();
+          for (int index = str.indexOf(guess0);
+               index >= 0;
+               index = str.indexOf(guess0, index + 1))
+          {
+            occurences.add(index);
+          }
+          for (int index = str.indexOf(guessO);
+               index >= 0;
+               index = str.indexOf(guessO, index + 1))
+          {
+            occurences.add(index);
+          }
+
+          Collections.sort(occurences);
+
+          List<List<Character>> lists = new ArrayList<>();
+          for(int i = 0; i< occurences.size(); i++){
+            lists.add(Arrays.asList('O', '0'));
+          }
+          List<List<Character>> products = cartesianProduct(lists);
+          Log.d("PARSER", "occurences "+ occurences);
+          Log.d("PARSER", "products "+ products);
+
+          for(int i = 0; i < products.size(); i++){
+            List<Character> product = products.get(i);
+            StringBuilder newDocumentNumber = new StringBuilder(str);
+            for(int j = 0; j < product.size(); j++){
+              newDocumentNumber.setCharAt(occurences.get(j), product.get(j));
+            }
+            final char newDigit = (char) (computeCheckDigit(newDocumentNumber.toString()) + '0');
+            Log.d("PARSER","checkDigitNew |"+fieldName+"|"+checkDigit+"|"+newDigit+"|"+newDocumentNumber.toString()+"|"+(newDigit==checkDigit));
+            if(newDigit == checkDigit) {
+              Log.d("SmartScanner", "REPLACING " + str + " to " + newDocumentNumber.toString());
+
+              mrz = mrz.replace(str, newDocumentNumber.toString());
+              rows = mrz.split("\n");
+
+              return true;
+            }
+
+          }
+
         }
 
         if (digit != checkDigit) {
@@ -569,4 +624,24 @@ public class MrzParser {
         String n = Normalizer.normalize(str, Normalizer.Form.NFD);
         return n.replaceAll("[^\\p{ASCII}]", "").toLowerCase();
     }
+
+  protected <T> List<List<T>> cartesianProduct(List<List<T>> lists) {
+    List<List<T>> resultLists = new ArrayList<List<T>>();
+    if (lists.size() == 0) {
+      resultLists.add(new ArrayList<T>());
+      return resultLists;
+    } else {
+      List<T> firstList = lists.get(0);
+      List<List<T>> remainingLists = cartesianProduct(lists.subList(1, lists.size()));
+      for (T condition : firstList) {
+        for (List<T> remainingList : remainingLists) {
+          ArrayList<T> resultList = new ArrayList<T>();
+          resultList.add(condition);
+          resultList.addAll(remainingList);
+          resultLists.add(resultList);
+        }
+      }
+    }
+    return resultLists;
+  }
 }

@@ -53,8 +53,8 @@ public class Dominican_Republic_ID extends MrzRecord {
         Logger log = LoggerFactory.getLogger(MrzParser.class);
         super.fromMrz(mrz);
         final MrzParser p = new MrzParser(mrz);
-        documentNumber = p.parseNumberString(new MrzRange(5, 17, 0));
         validDocumentNumber = p.checkDigitWithoutFiller(17, 0, new MrzRange(5, 17, 0), "document number");
+        documentNumber = p.parseNumberString(new MrzRange(5, 17, 0));
         optional = p.parseString(new MrzRange(18, 30, 0));
         dateOfBirth = p.parseDate(new MrzRange(0, 6, 1));
         validDateOfBirth = p.checkDigit(6, 1, new MrzRange(0, 6, 1), "date of birth") && dateOfBirth.isDateValid();

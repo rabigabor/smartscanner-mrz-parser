@@ -51,8 +51,8 @@ public class Burkina_ID extends MrzRecord {
         org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(MrzParser.class);
         super.fromMrz(mrz);
         final MrzParser p = new MrzParser(mrz);
-        documentNumber = p.parseString(new MrzRange(5, 14, 0));
         validDocumentNumber = p.checkDigit(14, 0, new MrzRange(5, 14, 0), "document number");
+        documentNumber = p.parseString(new MrzRange(5, 14, 0));
         optional = p.parseString(new MrzRange(15, 30, 0));
         dateOfBirth = p.parseDate(new MrzRange(0, 6, 1));
         validDateOfBirth = p.checkDigit(6, 1, new MrzRange(0, 6, 1), "date of birth") && dateOfBirth.isDateValid();

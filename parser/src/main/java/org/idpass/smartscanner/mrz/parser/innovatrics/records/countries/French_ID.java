@@ -61,8 +61,8 @@ public class French_ID extends MrzRecord {
         setName(name);
         nationality = p.parseString(new MrzRange(2, 5, 0));
         optional = p.parseString(new MrzRange(30, 36, 0));
-        documentNumber = p.parseString(new MrzRange(0, 12, 1));
         validDocumentNumber = p.checkDigit(12, 1, new MrzRange(0, 12, 1), "document number");
+        documentNumber = p.parseString(new MrzRange(0, 12, 1));
         dateOfBirth = p.parseDate(new MrzRange(27, 33, 1));
         validDateOfBirth = p.checkDigit(33, 1, new MrzRange(27, 33, 1), "date of birth") && dateOfBirth.isDateValid();
         sex = p.parseSex(34, 1);

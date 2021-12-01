@@ -16,23 +16,22 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.idpass.smartscanner.mrz.parser.innovatrics.records;
+package org.idpass.smartscanner.mrz.parser.innovatrics.records.countries;
 
 
 import org.idpass.smartscanner.mrz.parser.innovatrics.MrzParser;
 import org.idpass.smartscanner.mrz.parser.innovatrics.MrzRange;
 import org.idpass.smartscanner.mrz.parser.innovatrics.MrzRecord;
 import org.idpass.smartscanner.mrz.parser.innovatrics.types.MrzFormat;
-
 /**
- * MRTD td2 format: A two line long, 36 characters per line format.
+ * Unknown 2 line/34 characters per line format, used with old Slovak ID cards.
  * @author Martin Vysny
  */
-public class MrtdTd2 extends MrzRecord {
+public class Slovak_ID_2_34 extends MrzRecord {
     private static final long serialVersionUID = 1L;
 
-    public MrtdTd2() {
-        super(MrzFormat.MRTD_TD2);
+    public Slovak_ID_2_34() {
+        super(MrzFormat.SLOVAK_ID_234);
     }
     /**
      * For use of the issuing State or 
@@ -46,7 +45,7 @@ public class MrtdTd2 extends MrzRecord {
     public void fromMrz(String mrz) {
         super.fromMrz(mrz);
         final MrzParser p = new MrzParser(mrz);
-        setName(p.parseName(new MrzRange(5, 36, 0)));
+        setName(p.parseName(new MrzRange(5, 34, 0)));
         validDocumentNumber = p.checkDigit(9, 1, new MrzRange(0, 9, 1), "document number");
         documentNumber = p.parseString(new MrzRange(0, 9, 1));
         nationality = p.parseString(new MrzRange(10, 13, 1));
@@ -55,13 +54,13 @@ public class MrtdTd2 extends MrzRecord {
         sex = p.parseSex(20, 1);
         expirationDate = p.parseDate(new MrzRange(21, 27, 1));
         validExpirationDate = p.checkDigit(27, 1, new MrzRange(21, 27, 1), "expiration date") && expirationDate.isDateValid();
-        optional = p.parseString(new MrzRange(28, 35, 1));
-        validComposite = p.checkDigit(35, 1, p.rawValue(new MrzRange(0, 10, 1), new MrzRange(13, 20, 1), new MrzRange(21, 35, 1)), "mrz");
+        optional = p.parseString(new MrzRange(28, 34, 1));
+        // TODO validComposite missing? (final MRZ check digit)
     }
 
     @Override
     public String toString() {
-        return "MRTD-TD2{" + super.toString() + ", optional=" + optional + '}';
+        return "Slovak_ID_2_34{" + super.toString() + ", optional=" + optional + '}';
     }
 
     @Override
@@ -71,19 +70,18 @@ public class MrtdTd2 extends MrzRecord {
         sb.append(code1);
         sb.append(code2);
         sb.append(MrzParser.toMrz(issuingCountry, 3));
-        sb.append(MrzParser.nameToMrz(surname, givenNames, 31));
+        sb.append(MrzParser.nameToMrz(surname, givenNames, 29));
         sb.append('\n');
         // second line
-        final String dn = MrzParser.toMrz(documentNumber, 9) + MrzParser.computeCheckDigitChar(MrzParser.toMrz(documentNumber, 9));
-        sb.append(dn);
+        sb.append(MrzParser.toMrz(documentNumber, 9));
+        sb.append(MrzParser.computeCheckDigitChar(MrzParser.toMrz(documentNumber, 9)));
         sb.append(MrzParser.toMrz(nationality, 3));
-        final String dob = dateOfBirth.toMrz() + MrzParser.computeCheckDigitChar(dateOfBirth.toMrz());
-        sb.append(dob);
+        sb.append(dateOfBirth.toMrz());
+        sb.append(MrzParser.computeCheckDigitChar(dateOfBirth.toMrz()));
         sb.append(sex.mrz);
-        final String ed = expirationDate.toMrz() + MrzParser.computeCheckDigitChar(expirationDate.toMrz());
-        sb.append(ed);
-        sb.append(MrzParser.toMrz(optional, 7));
-        sb.append(MrzParser.computeCheckDigitChar(dn + dob + ed + MrzParser.toMrz(optional, 7)));
+        sb.append(expirationDate.toMrz());
+        sb.append(MrzParser.computeCheckDigitChar(expirationDate.toMrz()));
+        sb.append(MrzParser.toMrz(optional, 6));
         sb.append('\n');
         return sb.toString();
     }

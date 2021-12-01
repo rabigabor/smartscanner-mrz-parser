@@ -48,8 +48,8 @@ public class MrvB extends MrzRecord {
         super.fromMrz(mrz);
         final MrzParser parser = new MrzParser(mrz);
         setName(parser.parseName(new MrzRange(5, 36, 0)));
-        documentNumber = parser.parseString(new MrzRange(0, 9, 1));
         validDocumentNumber = parser.checkDigit(9, 1, new MrzRange(0, 9, 1), "passport number");
+        documentNumber = parser.parseString(new MrzRange(0, 9, 1));
         nationality = parser.parseString(new MrzRange(10, 13, 1));
         dateOfBirth = parser.parseDate(new MrzRange(13, 19, 1));
         validDateOfBirth = parser.checkDigit(19, 1, new MrzRange(13, 19, 1), "date of birth") && dateOfBirth.isDateValid();
