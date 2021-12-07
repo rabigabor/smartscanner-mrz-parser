@@ -276,7 +276,7 @@ public class MrzParser {
 
         final char digit = (char) (computeCheckDigit(str) + '0');
         char checkDigit = rows[row].charAt(col);
-        if (checkDigit == FILLER) {
+        if (checkDigit == FILLER || checkDigit == 'O') {
             checkDigit = '0';
         }
         Log.d("PARSER","checkDigit |"+digit+"|"+checkDigit+"|"+fieldName+"|"+str);
@@ -448,6 +448,7 @@ public class MrzParser {
      */
     public static MrzRecord parse(String mrz) {
         final MrzRecord result = MrzFormat.get(mrz).newRecord();
+        Log.d("MRZRECORD TYPE",result.toString());
         result.fromMrz(mrz);
         return result;
     }
