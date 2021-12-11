@@ -255,8 +255,8 @@ public enum MrzFormat {
         }
         mrz = mrzBuilder.toString();
         rows = mrz.split("\n");
-        Log.d("SmartScanner", "mrz append: " + mrz);
-        Log.d("SmartScanner", "rows append: " + Arrays.toString(rows));
+        // Log.d("SmartScanner", "mrz append: " + mrz);
+        // Log.d("SmartScanner", "rows append: " + Arrays.toString(rows));
         for (final MrzFormat f : values()) {
             if (f.isFormatOf(rows)) {
                 return f;

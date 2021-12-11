@@ -120,7 +120,7 @@ public class MrzParser {
     public String rawValue(MrzRange... range) {
         final StringBuilder sb = new StringBuilder();
         for (MrzRange r : range) {
-            sb.append(rows[r.row].substring(r.column, r.columnTo));
+            sb.append(rows[r.row].substring(r.column, Math.min(r.columnTo, rows[r.row].length())));
         }
         return sb.toString();
     }
@@ -275,8 +275,21 @@ public class MrzParser {
         MrzRange invalidCheckdigit = null;
 
         final char digit = (char) (computeCheckDigit(str) + '0');
-        char checkDigit = rows[row].charAt(col);
+        char checkDigit = '0';
+        try{
+            checkDigit = rows[row].charAt(col);
+        }catch(StringIndexOutOfBoundsException e){
+            Log.d("PARSER", "getting last "+ rows[row].length()+" row "+rows[row]);
+            checkDigit = rows[row].charAt(rows[row].length()-1);
+        }
         if (checkDigit == FILLER || checkDigit == 'O') {
+            if(checkDigit == 'O'){
+                
+                String docNumWithNewCheckDigit = str + '0';
+                Log.d("PARSER", "docNumWithNewCheckDigit "+docNumWithNewCheckDigit+" "+str+" "+checkDigit);
+                mrz = mrz.replace(str+checkDigit, docNumWithNewCheckDigit);
+                rows = mrz.split("\n");
+            }
             checkDigit = '0';
         }
         Log.d("PARSER","checkDigit |"+digit+"|"+checkDigit+"|"+fieldName+"|"+str);
